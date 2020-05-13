@@ -263,7 +263,7 @@ void ParticleFilter::resample() {
 
    //Create a random value generator between 0 and the maxWeight
    //Effectively the same as rand * maxWeight if rand is 0 << 1
-   uniform_int_distribution<double> distDouble(0, maxWeight);
+   uniform_real_distribution<double> distDouble(0, maxWeight);
 
    for (int i = 0; i < num_particles; i++)
    {
