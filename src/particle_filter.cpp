@@ -24,7 +24,7 @@ using std::vector;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;
 using std::string;
-using std::os
+using std::os;
 
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
