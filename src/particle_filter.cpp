@@ -24,7 +24,6 @@ using std::vector;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;
 using std::string;
-using std::os;
 using std::stringstream;
 using std::ostream_iterator;
 
