@@ -65,7 +65,6 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   }
 
   is_initialized = true;
-  cout << "Initialized";
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[],
@@ -108,8 +107,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
        particles[i].y += dist_y(gen);
        particles[i].theta += dist_theta(gen);
      }
-
-     cout << "Prediction";
 }
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
@@ -167,6 +164,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
    // For each particle...
    for (int i = 0; i<num_particles; i++)
    {
+      // For readability
+      double x = particles[i].x;
+      double y = particles[i].y;
+      double theta = particles[i].theta;
+
       //Find landmarks in range of particle
       vector<LandmarkObs> landmarks_inRange;
 
@@ -176,7 +178,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         float landmarkY = map_landmarks.landmark_list[k].y_f;
         int id = map_landmarks.landmark_list[k].id_i;
 
-        if (dist(particles[i].x, landmarkX, particles[i].y, landmarkY) < sensor_range)
+        if (dist(x, landmarkX, y, landmarkY) < sensor_range)
         {
           landmarks_inRange.push_back(LandmarkObs{id, landmarkX, landmarkY});
         }
@@ -188,10 +190,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
      for (unsigned int j=0; j<observations.size(); j++)
      {
         // Transform the observation to the Map coordinates (assuming the observation is from the particle)
-        double mapX = particles[i].x + (cos(theta) * observations[j].x) -
+        double mapX = x + (cos(theta) * observations[j].x) -
                               (sin(theta) * observations[j].y);
 
-        double mapY = particles[i].y + (sin(theta) * observations[j].x) -
+        double mapY = y + (sin(theta) * observations[j].x) -
                 (cos(theta) * observations[j].y);
 
         transformedObs.push_back(LandmarkObs{ observations[j].id, mapX, mapY});
@@ -201,54 +203,37 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
      dataAssociation(landmarks_inRange, transformedObs);
 
      // Update Weight
+
+     //reset weight
+     particles[i].weight = 1.0;
+
      //For each observation....
      for (unsigned int l = 0; l < transformedObs.size(); l++)
      {
         //Get map landmark for this observation
         int id = 0;
-        while(map_landmarks.landmark_list[id].id_i != transformedObs[l].id)
+        while(map_landmarks.landmark_list[id].id_i != transformedObs[l].id && id < map_landmarks.landmark_list.size())
         { id++; }
 
+        double dx = transformedObs[l].x - maps_landmarks.landmark_list[id].x_f;
+        double dy = transformedObs[l].x - maps_landmarks.landmark_list[id].y_f;
 
+        // Multivariate-Gaussian Probability
+         double weight = (1/(2*M_PI*std_landmark[0]*std_landmark[1])) * exp(-(dX*dX/(2*stdLandmarkX*stdLandmarkX) + (dY*dY/(2*stdLandmarkY*stdLandmarkY))));
+         if (weight == 0) {
+           // avoid weight of zero
+           particles[i].weight *= 0.0001;
+         } else {
+           particles[i].weight *= weight;
+         }
 
-        double weight = multiv_prob(std_landmark[0], std_landmark[1],
-                transformedObs[l].x, transformedObs[l].y,
-                map_landmarks.landmark_list[id].x_f, map_landmarks.landmark_list[id].y_f);
-
-        //Avoid a weight of zero
-        if (weight == 0)
-        {
-            particles[i].weight *= 0.0001;
-        }
-        else
-        {
-          particles[i].weight *= weight;
-        }
      }
    }
 
    cout << "weights updated";
 }
 
-double ParticleFilter::multiv_prob(double sig_x, double sig_y, double x_obs, double y_obs,
-                   double mu_x, double mu_y)
-{
-  // calculate normalization term
-  double gauss_norm;
-  gauss_norm = 1 / (2 * M_PI * sig_x * sig_y);
 
-  // calculate exponent
-  double exponent;
-  exponent = (pow(x_obs - mu_x, 2) / (2 * pow(sig_x, 2)))
-               + (pow(y_obs - mu_y, 2) / (2 * pow(sig_y, 2)));
-
-  // calculate weight using normalization terms and exponent
-  double weight;
-  weight = gauss_norm * exp(-exponent);
-
-  cout << "Multiv_prob";
-  return weight;
-}
 
 
 void ParticleFilter::resample() {
