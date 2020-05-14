@@ -14,6 +14,9 @@
 #include <iostream>
 #include <numeric>
 #include <string>
+#include <random>
+#include <sstream>
+#include <iterator>
 
 using std::normal_distribution;
 using std::numeric_limits;
@@ -21,6 +24,7 @@ using std::vector;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;
 using std::string;
+using std::os
 
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
