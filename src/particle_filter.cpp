@@ -24,6 +24,7 @@ using std::uniform_int_distribution;
 using std::uniform_real_distribution;
 using std::string;
 using std::vector;
+using std::cout;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
   /**
@@ -50,7 +51,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   normal_distribution<double> dist_theta(theta, std[2]);
 
   //Create the num_particles and add the noise....
-  for (int i = 0; i < num_particles; i++)
+  for (int i = 0; i < num_particles; ++i)
   {
       // Create a particle and add the noise
       Particle p;
@@ -64,6 +65,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   }
 
   is_initialized = true;
+  cout << "Initialized";
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[],
@@ -106,6 +108,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
        particles[i].y += dist_y(gen);
        particles[i].theta += dist_theta(gen);
      }
+
+     cout << "Prediction";
 }
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
@@ -138,6 +142,7 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
         }
      }
    }
+   cout << "DataAssoc";
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
@@ -221,6 +226,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         }
      }
    }
+
+   cout << "weights updated";
 }
 
 double ParticleFilter::multiv_prob(double sig_x, double sig_y, double x_obs, double y_obs,
@@ -239,6 +246,7 @@ double ParticleFilter::multiv_prob(double sig_x, double sig_y, double x_obs, dou
   double weight;
   weight = gauss_norm * exp(-exponent);
 
+  cout << "Multiv_prob";
   return weight;
 }
 
@@ -284,6 +292,7 @@ void ParticleFilter::resample() {
    }
 
    particles = resampledParticles;
+   cout << "Resample"
 }
 
 void ParticleFilter::SetAssociations(Particle& particle,
